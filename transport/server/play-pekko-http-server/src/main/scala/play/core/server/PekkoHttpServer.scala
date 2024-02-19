@@ -97,6 +97,8 @@ class PekkoHttpServer(context: PekkoHttpServer.Context) extends Server {
     Server.getPossiblyInfiniteBytes(serverConfig.underlying, "max-content-length", "pekko.max-content-length")
   private val maxHeaderValueLength =
     serverConfig.getDeprecated[ConfigMemorySize]("max-header-size", "pekko.max-header-value-length").toBytes.toInt
+  private val maxHeaderCount =
+    pekkoServerConfig.get[Int]("max-header-count")
   private val includeTlsSessionInfoHeader = pekkoServerConfig.get[Boolean]("tls-session-info-header")
   private val defaultHostHeader           = pekkoServerConfigReader.getHostHeader.fold(throw _, identity)
   private val transparentHeadRequests     = pekkoServerConfig.get[Boolean]("transparent-head-requests")
@@ -140,6 +142,7 @@ class PekkoHttpServer(context: PekkoHttpServer.Context) extends Server {
     ParserSettings(pekkoHttpConfig)
       .withMaxContentLength(maxContentLength)
       .withMaxHeaderValueLength(maxHeaderValueLength)
+      .withMaxHeaderCount(maxHeaderCount)
       .withIncludeTlsSessionInfoHeader(includeTlsSessionInfoHeader)
       .withUriParsingMode(Uri.ParsingMode.Relaxed)
       .withModeledHeaderParsing(false) // Disable most of Pekko HTTP's header parsing; use RawHeaders instead
